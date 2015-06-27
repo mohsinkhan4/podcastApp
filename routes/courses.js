@@ -24,7 +24,7 @@ router.get('/:courseId', function (req, res) {
 router.get('/:courseId/:videoId', function (req, res) {
     db.videos
         .find({ courseId : req.params.courseId }, {_id: 0, videos: 1}, function(err, resp) {
-            var videos = courses[0].videos;
+            var videos = resp[0].videos;
             for(var i in videos){
                 if(req.params.videoId == videos[i].videoId){
                     console.log(videos[i].videoId);
