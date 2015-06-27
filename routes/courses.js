@@ -6,84 +6,35 @@ var fs = require('fs');
 var router = express.Router();
 
 router.get('/', function (req, res) {
-	
-        db.videos
-            .find({}, {_id: 0, courseName: 1})
-            .sort({'_id' : -1},   
-                function(err, courses) {
-                    console.log(courses);
-                    res.json(courses);
-                }
-            );
+    db.videos
+        .find({}, {_id: 0, courseName: 1})
+        .sort({'_id' : -1}, function(err, courses) {
+            res.json(courses);
+        });
 });
 
 router.get('/:courseId', function (req, res) {
-        db.videos
-            .find({courseId : req.params.courseId}, {_id: 0, videos: 1})
-            .sort(
-                {'_id' : -1},   
-                function(err, courses) {
-                    console.log(courses);
-                    res.json(courses);
-                }
-            );
+    db.videos
+        .find({courseId : req.params.courseId}, {_id: 0, courseName: 1, videos: 1})
+        .sort({'_id' : -1}, function(err, videos) {
+            res.json(videos);
+        });
 });
 
 router.get('/:courseId/:videoId', function (req, res) {
-
-        db.videos.aggregate([
-            {
-                "$match" : { 
-                    "courseId" : req.params.courseId 
-                    //"videos.videoId" : req.params.videoId
-                },
+    db.videos
+        .find({ courseId : req.params.courseId }, {_id: 0, videos: 1}, function(err, resp) {
+            var videos = courses[0].videos;
+            for(var i in videos){
+                if(req.params.videoId == videos[i].videoId){
+                    console.log(videos[i].videoId);
+                    res.json(videos[i].FilePath);
+                    return;
+                }
             }
-           /*{$unwind: "$_id"},
-            {$group: {
-              _id: "$_id", numberof: {$sum: 1}
-            }},
-            {$sort: {numberof: -1} },
-            {$limit: 1}*/
-        ], function (err, result) {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            console.log(result);
-            res.json(result);
+            res.json('not found');
         });
 
-        /*db.videos
-            .find( 
-                {
-                    courseId : req.params.courseId,
-                    videos: { $elemMatch: { videoId: req.params.videoId } } 
-                }
-            )
-            .sort(
-                {'_id' : -1},   
-                function(err, courses) {
-                    console.log(courses);
-                    res.json(courses);
-                }
-            );;*/
-
-
-        /*db.videos.aggregate([
-            {
-                "$match" : { "courseId" : req.params.courseId }
-            },
-            {
-               "$unwind": "$videos" 
-            }
-        ], function (err, result) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-        console.log(result);
-        res.json(result);
-    });*/
 });
 
 module.exports = router;
